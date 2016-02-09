@@ -3,7 +3,7 @@ import random
 import pprint
 import copy
 
-doodle_file = "Doodle_with_times.csv"
+doodle_file = "Tuesday.csv"
 info_file = "player_info.csv"
 keys = []
 persons = []
@@ -120,7 +120,7 @@ def main():
         num_not_scheduled = len(list(get_persons_not_scheduled()))
         # s[num_not_scheduled] = copy.deepcopy(schedule)
         ctr = ctr + 1
-        if ctr > 1000:
+        if ctr > 100:
             n = n + 1
             ctr = 0
 
