@@ -1,4 +1,5 @@
 # UW Varsity Squash Practice Scheduler
+A simple scheduler to aid in creating the drill and match day schedules for the UW Varsity Squash Team
 
 ## Requirements
 - Python 2.6 + 
