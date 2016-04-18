@@ -1,6 +1,7 @@
 import csv
 import random
 import pprint
+import argparse
 import copy
 import os.path
 
@@ -29,53 +30,59 @@ class Person:
 # TODO: Pass in the day to parse
 def parse_doodle(day):
     # TODO: Cheeck if file exists - move it out of main()
-    with open(day+".csv", 'rb') as csvfile:
-        doodle = csv.reader(csvfile, delimiter=',', quotechar='"')
-        for row in doodle:
-            # First row
-            if row[0] == "Times":
-                # Generate keys
-                for time in row:
-                    keys.append(time.split()[0])
-                continue
-            else:
-                # iterate through keys, add dictionary for each entry based on csv
-                # for i in range(1,len(keys)):
-                # Get name, create person
-                # We might be parsing a new day, and have the person already there, let's just get that person
-                p = Person(row[0])
-                for p_temp in persons:
-                    if p_temp.name == row[0]:
-                        p = p_temp
-                        break
-                i = 1
-                for val in row[1:]:
-                    # Create the times dict entry, based on the doodle response
-                    if val == "OK":
-                        p.times[day][keys[i]] = True
-                    else:
-                        p.times[day][keys[i]] = False
-                    # print keys[i-1], p.name, p.times[keys[i-1]], val
-                    i = i + 1
-                if p: # TODO: I don't think we need this check
-                    persons.append(p)
+    try:
+        with open(day+".csv", 'rb') as csvfile:
+            doodle = csv.reader(csvfile, delimiter=',', quotechar='"')
+            for row in doodle:
+                # First row
+                if row[0] == "Times":
+                    # Generate keys
+                    for time in row:
+                        keys.append(time.split()[0])
+                    continue
+                else:
+                    # iterate through keys, add dictionary for each entry based on csv
+                    # for i in range(1,len(keys)):
+                    # Get name, create person
+                    # We might be parsing a new day, and have the person already there, let's just get that person
+                    p = Person(row[0])
+                    for p_temp in persons:
+                        if p_temp.name == row[0]:
+                            p = p_temp
+                            break
+                    i = 1
+                    for val in row[1:]:
+                        # Create the times dict entry, based on the doodle response
+                        if val == "OK":
+                            p.times[day][keys[i]] = True
+                        else:
+                            p.times[day][keys[i]] = False
+                        # print keys[i-1], p.name, p.times[keys[i-1]], val
+                        i = i + 1
+                    if p: # TODO: I don't think we need this check
+                        persons.append(p)
+    except (OSError, IOError) as e:
+        print "The schedule", day+".csv","does not exist"
 
 # Player info contains team and ranking info
 # Parse this into the person objects
 def parse_player_info_into_persons():
     # TODO: Cheeck if file exists
-    with open(info_file,'rb') as csvfile:
-        info = csv.reader(csvfile, delimiter=',', quotechar='"')
-        for row in info:
-            # First row
-            if row[0] == "Name":
-                continue
-            else:
-                # Find the person
-                for p in persons:
-                    if p.name == row[0]:
-                        p.team = row[1]
-                        p.level = row[2]
+    try:
+        with open(info_file,'rb') as csvfile:
+            info = csv.reader(csvfile, delimiter=',', quotechar='"')
+            for row in info:
+                # First row
+                if row[0] == "Name":
+                    continue
+                else:
+                    # Find the person
+                    for p in persons:
+                        if p.name == row[0]:
+                            p.team = row[1]
+                            p.level = row[2]
+    except(OSError, IOError) as e:
+        print "Please include a player_info.csv file - see README for formatting"
 
 def print_player_info():
     for p in persons:
@@ -141,15 +148,19 @@ def reset_players_scheduled():
         p.scheduled = False;
 
 def main():
+    parser = argparse.ArgumentParser(description='Generate drill/match day schedule')
+    parser.add_argument("p_day", metavar="Day", help="Enter a day of week to generate a schedule for")
+    args = parser.parse_args()
+
     # parse_doodle("Tuesday")
     # for day in days:
         # # Check if the file exists - then parse
         # if os.path.isfile(day+".csv"):
             # print day
             # parse_doodle(day)
-    parse_doodle("Monday")
+    parse_doodle(args.p_day)
     parse_player_info_into_persons()
-    print_player_info()
+    # print_player_info()
 
     lowest_people_not_scheduled = []
     lowest_not_scheduled_num = 10000
@@ -159,6 +170,8 @@ def main():
     not_scheduled_num = 0
     new_schedule = {}
 
+    if len(persons) == 0:
+        return
     # Generate schedule for all days that have times
     for day in days:
         if "3:00" in persons[0].times[day]:
