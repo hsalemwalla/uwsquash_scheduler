@@ -114,7 +114,7 @@ def get_opponent(generated_schedule, p, d, t, c):
     for p_temp in persons:
         if not p_temp.scheduled:
             if p_temp.name != p.name:
-                if abs(int(p_temp.level) - int(curr_player_lvl)) < 3:
+                if abs(int(p_temp.level) - int(curr_player_lvl)) < 5:
                     # print p_temp.times[d]
                     # print p.name
                     # print p_temp.name
@@ -174,7 +174,7 @@ def main():
         return
     # Generate schedule for all days that have times
     for day in days:
-        if "3:00" in persons[0].times[day]:
+        if "4:40" in persons[0].times[day]:
             print day
             for i in range(1,100):
                 reset_players_scheduled()
