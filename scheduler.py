@@ -1,3 +1,12 @@
+## --------------------------------------
+## UW Varsity Squash Practice Scheduler
+##
+## Author: Hussein Salemwalla
+## Email: hsalemwalla@gmail.com
+##
+## --------------------------------------
+
+
 import csv
 import random
 import pprint
@@ -5,7 +14,8 @@ import argparse
 import copy
 import os.path
 
-days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+# days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+days = []
 courts = ["court8", "court9"]
 info_file = "player_info.csv"
 
@@ -21,7 +31,8 @@ random.seed()
 class Person:
     def __init__(self, name=""):
         self.name = name
-        self.times = {"Monday":{}, "Tuesday":{}, "Wednesday":{}, "Thursday":{}, "Friday":{}}
+        # self.times = {"Monday":{}, "Tuesday":{}, "Wednesday":{}, "Thursday":{}, "Friday":{}}
+        self.times = {}
         self.level = -1
         self.team = "Men"
         self.scheduled = False
@@ -51,6 +62,9 @@ def parse_doodle(day):
                             p = p_temp
                             break
                     i = 1
+                    # Add the current day to the person's time if it does not exist
+                    if day not in p.times:
+                        p.times[day] = {}
                     for val in row[1:]:
                         # Create the times dict entry, based on the doodle response
                         if val == "OK":
@@ -100,6 +114,7 @@ def generate_schedule(day):
 def get_player_at_time(generated_schedule, d, t, c):
     for p in persons:
         if not p.scheduled:
+            # pprint.pprint(p.times)
             if p.times[d][t] == True:
                 # Found a person available at the time
                 # Look for an opponent
@@ -114,7 +129,7 @@ def get_opponent(generated_schedule, p, d, t, c):
     for p_temp in persons:
         if not p_temp.scheduled:
             if p_temp.name != p.name:
-                if abs(int(p_temp.level) - int(curr_player_lvl)) < 5:
+                if abs(int(p_temp.level) - int(curr_player_lvl)) < 3:
                     # print p_temp.times[d]
                     # print p.name
                     # print p_temp.name
@@ -149,18 +164,22 @@ def reset_players_scheduled():
 
 def main():
     parser = argparse.ArgumentParser(description='Generate drill/match day schedule')
-    parser.add_argument("p_day", metavar="Day", help="Enter a day of week to generate a schedule for")
+    parser.add_argument("p_day", nargs="+", metavar="Day", help="Enter a day of week to generate a schedule for")
     args = parser.parse_args()
 
-    # parse_doodle("Tuesday")
-    # for day in days:
-        # # Check if the file exists - then parse
-        # if os.path.isfile(day+".csv"):
-            # print day
-            # parse_doodle(day)
-    parse_doodle(args.p_day)
-    parse_player_info_into_persons()
-    # print_player_info()
+
+    for d in args.p_day:
+        print d
+        days.append(d)
+        # parse_doodle("Tuesday")
+        # for day in days:
+            # # Check if the file exists - then parse
+            # if os.path.isfile(day+".csv"):
+                # print day
+                # parse_doodle(day)
+        parse_doodle(d)
+        parse_player_info_into_persons()
+        # print_player_info()
 
     lowest_people_not_scheduled = []
     lowest_not_scheduled_num = 10000
